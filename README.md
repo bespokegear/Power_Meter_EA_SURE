@@ -15,7 +15,7 @@ This code is for an Arduino Nano
 It is designed to work with Embedded Adventures Dsiplays (with appropriate driver)
 OR it can use an HT1632C module - usually 2 pcs of 32 x 08 LED matrixes.
 
-#SURE LED display information
+# SURE LED display information
 
 Code for Sure 8 x 32 LED matrix HT1632 controller board 12V Type: DE-DP131112V200
 
@@ -39,13 +39,13 @@ This has been added to this HT1632C arduino library included in this repository,
 
 https://github.com/re-innovation/HT1632C_DEDP131112
   
-#Embedded Adventures LED display Information
+# Embedded Adventures LED display Information
 
 Code for the Embedded Adventures LED display unit with information here:
 
 https://www.embeddedadventures.com/datasheets/PLT-1001_hw_v4_doc_v3.pdf
 
-#Arduno Nano Pins
+# Arduino Nano Pins
 
 * D0: Tx Serial Data (NOT used)
 * D1: Rx Serial Data - reads information from external unit
@@ -62,7 +62,7 @@ https://www.embeddedadventures.com/datasheets/PLT-1001_hw_v4_doc_v3.pdf
 * D12: Tx EA Controller
 * D13: Rx EA Controller
 
-#Functions
+# Functions
 
 The display unit responds to textual commands sent by serial on the serial wire (green and yellow insulation). The serial interface is configured to run at 115200 baud. The device will ignore anything which is not a valid command, as described below.
 
