@@ -29,7 +29,7 @@
 #define DEBOUNCED_BUTTON_RPT_INITIAL_MS 500
 #define DEBOUNCED_BUTTON_RPT_MS         300
 
-#define DISPLAYUPDATEMS                 500 // mS between each display and button press check update
+#define DISPLAYUPDATEMS                 50 // mS between each display and button press check update
 
 // Serial Read Functions
-#define MAX_STRING                      25  // Sets the maximum length of the serial string (probably could be lower)
+#define MAX_STRING                      20  // Sets the maximum length of the serial string (probably could be lower)

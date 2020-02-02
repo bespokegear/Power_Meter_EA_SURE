@@ -1,4 +1,4 @@
-  /********************************************************
+/********************************************************
   /****** LED Power Meter Display CODE ********************
   /****** by Matt Little **********************************
   /****** Date: 20/01/2020 ********************************
@@ -9,9 +9,9 @@
   This is a power and energy display program for serial-streamed data from our pedal power meters.
   It reads serial data (on D0/D1, Tx/Rx).
   It parses that data and displays the power on an LED display.
-  
+
   This code is for an Arduino Nano
-  
+
   It is designed to work with Embedded Adventures Dsiplays (with appropriate driver)
   OR it can use an HT1632C module - usually 2 pcs of 32 x 08 LED matrixes.
 
@@ -51,7 +51,7 @@
   D13: Rx EA Controller
 
 
-/************ External Libraries*****************************/
+  /************ External Libraries*****************************/
 // General configuration
 #include "config.h"
 
@@ -98,11 +98,15 @@ String winnerStr;       // Holds the wining team as string
 int countdownTimer;      // holds the time for the countdown
 bool winnerFlag = false;
 
+int timer;            // For timer display
+String timerStr;      // For timner display
+
+
 String displayStr1;
 String displayStr2;
 bool displayFlag = false;
 char bufDisplay1[10];
-char bufDisplay2[5];
+char bufDisplay2[10];
 
 // Varibales for writing to EEPROM
 int hiByte;      // These are used to store longer variables into EERPRPROM
@@ -375,18 +379,18 @@ void loop ()
             HT1632.drawText(buf, 14, 0, FONT_8X4, FONT_8X4_END, FONT_8X4_HEIGHT);
           }
           HT1632.render(); // This updates the screen display.
-          winnerFlag=false;
+          winnerFlag = false;
         }
         if (displayFlag == true)
         {
-            HT1632.renderTarget(1);
-            HT1632.clear(); // This zeroes out the internal memory.
-            HT1632.drawText(bufDisplay1, 0, 0, FONT_8X4, FONT_8X4_END, FONT_8X4_HEIGHT);
-            HT1632.render(); // This updates the screen display.
-            HT1632.renderTarget(0);
-            HT1632.clear(); // This zeroes out the internal memory.
-            HT1632.drawText(bufDisplay2, 0, 0, FONT_8X4, FONT_8X4_END, FONT_8X4_HEIGHT);
-            HT1632.render(); // This updates the screen display.
+          HT1632.renderTarget(1);
+          HT1632.clear(); // This zeroes out the internal memory.
+          HT1632.drawText(bufDisplay1, 0, 0, FONT_8X4, FONT_8X4_END, FONT_8X4_HEIGHT);
+          HT1632.render(); // This updates the screen display.
+          HT1632.renderTarget(0);
+          HT1632.clear(); // This zeroes out the internal memory.
+          HT1632.drawText(bufDisplay2, 0, 0, FONT_8X4, FONT_8X4_END, FONT_8X4_HEIGHT);
+          HT1632.render(); // This updates the screen display.
 
           displayFlag = false;
         }
@@ -398,7 +402,7 @@ void loop ()
       Serial.println("Bad display mode"); // Error
       break;
   }
-  delay(100);   // Short pause to stop everything running too quick
+  delay(20);   // Short pause to stop everything running too quick
 }
 
 
@@ -871,7 +875,23 @@ void sortData()
     winner = winnerStr.toInt();
     Serial.println(winnerStr);
     winnerFlag = true; // stop countdown happening
+  }
 
+  //  Timer Mode
+  //  To change this we use the command:
+  //  “aXXTI----“
+  //  Where ---- is the time in 10's seconds
+  else if (str_buffer.substring(3, 5) == "TI")
+  {
+    displayFlag = true;
+    displayStr1 = "TIME:";
+    displayStr2 = str_buffer.substring(5, 8);
+
+    // Here need to sort out the time from ***.* to number 
+    timer = displayStr2.toInt();
+    displayStr2 = timer;
+    displayStr1.toCharArray(bufDisplay1, displayStr1.length() + 1);
+    displayStr2.toCharArray(bufDisplay2, displayStr2.length() + 1);
   }
 
   //  Energy Adjust Value
@@ -885,33 +905,51 @@ void sortData()
     // need to find the test up the the | character
     if (str_buffer.substring(5, 9) == "MaxE")
     {
-     displayStr1 = "ENERGY";
-     displayStr2 = str_buffer.substring(str_buffer.indexOf('|')+1, str_buffer.indexOf('k'));     
-     Serial.println(F("Energy"));
+      displayStr1 = "ENERGY";
+      displayStr2 = str_buffer.substring(str_buffer.indexOf('|') + 1, str_buffer.indexOf('k'));
+      Serial.println(F("Energy"));
     }
     else if (str_buffer.substring(5, 9) == "MaxP")
     {
       displayStr1 = "MAX P";
-      displayStr2 = str_buffer.substring(str_buffer.indexOf('|')+1, str_buffer.indexOf('W'));      
+      displayStr2 = str_buffer.substring(str_buffer.indexOf('|') + 1, str_buffer.indexOf('W'));
       Serial.println(F("max Power"));
     }
     else if (str_buffer.substring(5, 11) == "Race T")
     {
       displayStr1 = "MAX T";
-      displayStr2 = str_buffer.substring(str_buffer.indexOf('|')+1, str_buffer.indexOf('s'));   
+      displayStr2 = str_buffer.substring(str_buffer.indexOf('|') + 1, str_buffer.indexOf('s'));
       Serial.println(F("Max Time"));
     }
     else if (str_buffer.substring(5, 11) == "Panels")
     {
       displayStr1 = "PANELS";
-      displayStr2 = str_buffer.substring(str_buffer.indexOf('|')+1, str_buffer.indexOf('|')+2);
+      displayStr2 = str_buffer.substring(str_buffer.indexOf('|') + 1, str_buffer.indexOf('|') + 2);
       Serial.println(F("Panels"));
     }
-    displayStr1.toCharArray(bufDisplay1, displayStr1.length()+1);
-    displayStr2.toCharArray(bufDisplay2, displayStr2.length()+1);
+    // Need to also cope with the following commands:
+    //aAASTEnergy Fill
+    //aAASTPower Race
+    //aAASTEnergy Race
+    else if (str_buffer.substring(5, 16) == "Energy Fill")
+    {
+      displayStr1 = "ENERGY";
+      displayStr2 = "FILL";
+    }
+    else if (str_buffer.substring(5, 15) == "Power Race")
+    {
+      displayStr1 = "POWER";
+      displayStr2 = "RACE";
+    }
+    else if (str_buffer.substring(5, 16) == "Energy Race")
+    {
+      displayStr1 = "ENERGY";
+      displayStr2 = "RACE";
+    }
+
+    displayStr1.toCharArray(bufDisplay1, displayStr1.length() + 1);
+    displayStr2.toCharArray(bufDisplay2, displayStr2.length() + 1);
     Serial.println(displayStr1);
     Serial.println(displayStr2);
   }
-
-
 }
