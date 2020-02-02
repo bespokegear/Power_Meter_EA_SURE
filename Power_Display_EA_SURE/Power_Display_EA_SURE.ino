@@ -97,7 +97,7 @@ int winner;             // This holds the winning team
 String winnerStr;       // Holds the wining team as string
 int countdownTimer;      // holds the time for the countdown
 bool winnerFlag = false;
-
+int offset;           // For offset of the data buffer display
 int timer;            // For timer display
 String timerStr;      // For timner display
 
@@ -389,9 +389,8 @@ void loop ()
           HT1632.render(); // This updates the screen display.
           HT1632.renderTarget(0);
           HT1632.clear(); // This zeroes out the internal memory.
-          HT1632.drawText(bufDisplay2, 0, 0, FONT_8X4, FONT_8X4_END, FONT_8X4_HEIGHT);
+          HT1632.drawText(bufDisplay2, offset, 0, FONT_8X4, FONT_8X4_END, FONT_8X4_HEIGHT);
           HT1632.render(); // This updates the screen display.
-
           displayFlag = false;
         }
         oldTime = millis();  // Save the time ready for the next output display
@@ -892,6 +891,7 @@ void sortData()
     displayStr2 = timer;
     displayStr1.toCharArray(bufDisplay1, displayStr1.length() + 1);
     displayStr2.toCharArray(bufDisplay2, displayStr2.length() + 1);
+    offset = 10;    
   }
 
   //  Energy Adjust Value
@@ -907,25 +907,30 @@ void sortData()
     {
       displayStr1 = "ENERGY";
       displayStr2 = str_buffer.substring(str_buffer.indexOf('|') + 1, str_buffer.indexOf('k'));
+      offset = 0;      
       Serial.println(F("Energy"));
     }
     else if (str_buffer.substring(5, 9) == "MaxP")
     {
       displayStr1 = "MAX P";
       displayStr2 = str_buffer.substring(str_buffer.indexOf('|') + 1, str_buffer.indexOf('W'));
+      offset = 0;      
       Serial.println(F("max Power"));
     }
     else if (str_buffer.substring(5, 11) == "Race T")
     {
       displayStr1 = "MAX T";
       displayStr2 = str_buffer.substring(str_buffer.indexOf('|') + 1, str_buffer.indexOf('s'));
+      offset = 0;
       Serial.println(F("Max Time"));
     }
     else if (str_buffer.substring(5, 11) == "Panels")
     {
       displayStr1 = "PANELS";
       displayStr2 = str_buffer.substring(str_buffer.indexOf('|') + 1, str_buffer.indexOf('|') + 2);
+      offset = 0;
       Serial.println(F("Panels"));
+      
     }
     // Need to also cope with the following commands:
     //aAASTEnergy Fill
@@ -935,16 +940,19 @@ void sortData()
     {
       displayStr1 = "ENERGY";
       displayStr2 = "FILL";
+      offset = 0;
     }
     else if (str_buffer.substring(5, 15) == "Power Race")
     {
       displayStr1 = "POWER";
       displayStr2 = "RACE";
+      offset = 0;      
     }
     else if (str_buffer.substring(5, 16) == "Energy Race")
     {
       displayStr1 = "ENERGY";
       displayStr2 = "RACE";
+      offset = 0;      
     }
 
     displayStr1.toCharArray(bufDisplay1, displayStr1.length() + 1);
